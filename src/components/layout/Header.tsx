@@ -47,7 +47,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+          <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 text-xl font-bold tracking-tight">
             <img src="/ai_logo.png" alt="AI Page" width={28} height={28} className="rounded-md" />
             AI Page
           </Link>

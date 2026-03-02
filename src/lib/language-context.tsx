@@ -57,6 +57,11 @@ const translations = {
   "header.login": { ko: "로그인", en: "Sign in" },
   "header.logout": { ko: "로그아웃", en: "Sign out" },
 
+  // Dashboard
+  "dashboard.welcome": { ko: "환영합니다", en: "Welcome" },
+  "dashboard.subtitle": { ko: "어떤 AI 서비스를 사용해 볼까요?", en: "Which AI service would you like to try?" },
+  "dashboard.coming_soon": { ko: "준비 중", en: "Coming Soon" },
+
   // Footer
   "footer.rights": { ko: "All rights reserved.", en: "All rights reserved." },
 } as const;

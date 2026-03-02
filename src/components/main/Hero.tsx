@@ -9,8 +9,10 @@ import {
   CodeGenSvg,
   ChatGenSvg,
 } from "@/components/ui/service-icons";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/language-context";
+import { useAuth } from "@/lib/auth-context";
 
 const serviceKeys = [
   { icon: ImageGenSvg, titleKey: "service.image.title", descKey: "service.image.desc" },
@@ -41,6 +43,7 @@ const cardVariants = {
 
 export function Hero() {
   const { lang, t } = useLanguage();
+  const { user } = useAuth();
 
   const rotatingWords =
     lang === "ko"
@@ -106,12 +109,12 @@ export function Hero() {
 
         {/* CTA */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-          <a
-            href="#services"
+          <Link
+            href={user ? "/dashboard" : "/login"}
             className="inline-flex items-center justify-center h-12 px-8 bg-gray-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-medium rounded-full hover:bg-gray-800 dark:hover:bg-zinc-200 transition-colors"
           >
             {t("hero.cta.primary")}
-          </a>
+          </Link>
           <a
             href="#about"
             className="inline-flex items-center justify-center h-12 px-8 border border-gray-200 dark:border-zinc-700 text-sm font-medium rounded-full text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
