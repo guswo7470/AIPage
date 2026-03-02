@@ -46,6 +46,17 @@ const translations = {
   "service.chat.title": { ko: "AI 채팅", en: "AI Chat" },
   "service.chat.desc": { ko: "지능형 대화 어시스턴트", en: "Intelligent conversation assistant" },
 
+  // Login
+  "login.title": { ko: "AI Page에 오신 것을 환영합니다", en: "Welcome to AI Page" },
+  "login.desc": { ko: "Google 계정으로 간편하게 시작하세요.", en: "Get started easily with your Google account." },
+  "login.google": { ko: "Google로 계속하기", en: "Continue with Google" },
+  "login.terms": { ko: "계속 진행하면 서비스 이용약관 및 개인정보처리방침에 동의하는 것으로 간주됩니다.", en: "By continuing, you agree to our Terms of Service and Privacy Policy." },
+  "login.back": { ko: "홈으로 돌아가기", en: "Back to Home" },
+
+  // Header
+  "header.login": { ko: "로그인", en: "Sign in" },
+  "header.logout": { ko: "로그아웃", en: "Sign out" },
+
   // Footer
   "footer.rights": { ko: "All rights reserved.", en: "All rights reserved." },
 } as const;
