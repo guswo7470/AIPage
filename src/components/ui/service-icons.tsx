@@ -1,0 +1,110 @@
+interface SvgProps {
+  className?: string;
+}
+
+export function ImageGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Canvas frame */}
+      <rect x="6" y="8" width="36" height="32" rx="3" stroke="currentColor" strokeWidth="2" />
+      {/* Mountain landscape */}
+      <path d="M6 32l10-12 8 8 6-6 12 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Sun */}
+      <circle cx="34" cy="18" r="4" stroke="currentColor" strokeWidth="2" />
+      {/* AI sparkle */}
+      <path d="M14 14l1.5 3 3 1.5-3 1.5L14 23l-1.5-3-3-1.5 3-1.5L14 14z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function MusicGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Waveform bars */}
+      <rect x="6" y="20" width="3" height="8" rx="1.5" fill="currentColor" opacity="0.5" />
+      <rect x="12" y="14" width="3" height="20" rx="1.5" fill="currentColor" opacity="0.7" />
+      <rect x="18" y="10" width="3" height="28" rx="1.5" fill="currentColor" />
+      <rect x="24" y="16" width="3" height="16" rx="1.5" fill="currentColor" opacity="0.8" />
+      <rect x="30" y="8" width="3" height="32" rx="1.5" fill="currentColor" />
+      <rect x="36" y="14" width="3" height="20" rx="1.5" fill="currentColor" opacity="0.7" />
+      <rect x="42" y="18" width="3" height="12" rx="1.5" fill="currentColor" opacity="0.5" />
+      {/* AI sparkle */}
+      <path d="M40 8l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function VideoGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Film frame */}
+      <rect x="4" y="10" width="40" height="28" rx="3" stroke="currentColor" strokeWidth="2" />
+      {/* Play triangle */}
+      <path d="M20 18v12l10-6-10-6z" fill="currentColor" opacity="0.8" />
+      {/* Film strip holes top */}
+      <circle cx="10" cy="14" r="1.5" fill="currentColor" opacity="0.4" />
+      <circle cx="38" cy="14" r="1.5" fill="currentColor" opacity="0.4" />
+      {/* Film strip holes bottom */}
+      <circle cx="10" cy="34" r="1.5" fill="currentColor" opacity="0.4" />
+      <circle cx="38" cy="34" r="1.5" fill="currentColor" opacity="0.4" />
+      {/* AI sparkle */}
+      <path d="M36 10l1.5 3 3 1.5-3 1.5L36 19l-1.5-3-3-1.5 3-1.5L36 10z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function TextGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Document */}
+      <rect x="8" y="4" width="32" height="40" rx="3" stroke="currentColor" strokeWidth="2" />
+      {/* Text lines */}
+      <line x1="14" y1="14" x2="34" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+      <line x1="14" y1="20" x2="30" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      <line x1="14" y1="26" x2="34" y2="26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+      <line x1="14" y1="32" x2="26" y2="32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      {/* AI cursor blink */}
+      <rect x="28" y="30" width="2" height="6" rx="1" fill="currentColor" opacity="0.5" />
+      {/* AI sparkle */}
+      <path d="M36 6l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function CodeGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Terminal window */}
+      <rect x="4" y="8" width="40" height="32" rx="3" stroke="currentColor" strokeWidth="2" />
+      {/* Title bar */}
+      <line x1="4" y1="16" x2="44" y2="16" stroke="currentColor" strokeWidth="2" opacity="0.3" />
+      <circle cx="10" cy="12" r="1.5" fill="currentColor" opacity="0.4" />
+      <circle cx="16" cy="12" r="1.5" fill="currentColor" opacity="0.4" />
+      <circle cx="22" cy="12" r="1.5" fill="currentColor" opacity="0.4" />
+      {/* Code brackets */}
+      <path d="M14 22l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M34 22l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Slash */}
+      <line x1="27" y1="20" x2="21" y2="32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
+}
+
+export function ChatGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Main speech bubble */}
+      <path d="M8 10h24a3 3 0 013 3v14a3 3 0 01-3 3H18l-6 5v-5H8a3 3 0 01-3-3V13a3 3 0 013-3z" stroke="currentColor" strokeWidth="2" />
+      {/* Dots */}
+      <circle cx="14" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
+      <circle cx="20" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
+      <circle cx="26" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
+      {/* AI reply bubble */}
+      <rect x="22" y="26" width="20" height="12" rx="3" stroke="currentColor" strokeWidth="2" opacity="0.6" />
+      <line x1="26" y1="31" x2="38" y2="31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+      <line x1="26" y1="35" x2="34" y2="35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+      {/* AI sparkle */}
+      <path d="M40 10l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
