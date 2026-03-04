@@ -7,7 +7,7 @@ import {
   VideoGenSvg,
   TextGenSvg,
   CodeGenSvg,
-  ChatGenSvg,
+  FortuneGenSvg,
 } from "@/components/ui/service-icons";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -20,7 +20,7 @@ const serviceKeys = [
   { icon: VideoGenSvg, titleKey: "service.video.title", descKey: "service.video.desc" },
   { icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc" },
   { icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc" },
-  { icon: ChatGenSvg, titleKey: "service.chat.title", descKey: "service.chat.desc" },
+  { icon: FortuneGenSvg, titleKey: "service.fortune.title", descKey: "service.fortune.desc" },
 ] as const;
 
 const containerVariants = {
@@ -115,12 +115,12 @@ export function Hero() {
           >
             {t("hero.cta.primary")}
           </Link>
-          <a
-            href="#about"
+          <Link
+            href="/about"
             className="inline-flex items-center justify-center h-12 px-8 border border-gray-200 dark:border-zinc-700 text-sm font-medium rounded-full text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
           >
             {t("hero.cta.secondary")}
-          </a>
+          </Link>
         </div>
       </div>
 

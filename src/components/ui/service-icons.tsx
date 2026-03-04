@@ -90,21 +90,25 @@ export function CodeGenSvg({ className }: SvgProps) {
   );
 }
 
-export function ChatGenSvg({ className }: SvgProps) {
+export function FortuneGenSvg({ className }: SvgProps) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Main speech bubble */}
-      <path d="M8 10h24a3 3 0 013 3v14a3 3 0 01-3 3H18l-6 5v-5H8a3 3 0 01-3-3V13a3 3 0 013-3z" stroke="currentColor" strokeWidth="2" />
-      {/* Dots */}
-      <circle cx="14" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
-      <circle cx="20" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
-      <circle cx="26" cy="20" r="1.5" fill="currentColor" opacity="0.6" />
-      {/* AI reply bubble */}
-      <rect x="22" y="26" width="20" height="12" rx="3" stroke="currentColor" strokeWidth="2" opacity="0.6" />
-      <line x1="26" y1="31" x2="38" y2="31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
-      <line x1="26" y1="35" x2="34" y2="35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
+      {/* Yin-Yang circle */}
+      <circle cx="24" cy="24" r="16" stroke="currentColor" strokeWidth="2" />
+      {/* Yin-Yang S-curve */}
+      <path d="M24 8a8 8 0 010 16 8 8 0 000 16" stroke="currentColor" strokeWidth="2" />
+      {/* Small circles */}
+      <circle cx="24" cy="16" r="2.5" fill="currentColor" opacity="0.7" />
+      <circle cx="24" cy="32" r="2.5" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      {/* Trigram lines - top right */}
+      <line x1="38" y1="12" x2="44" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+      <line x1="38" y1="16" x2="40" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+      <line x1="42" y1="16" x2="44" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+      {/* Trigram lines - bottom left */}
+      <line x1="4" y1="32" x2="10" y2="32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+      <line x1="4" y1="36" x2="10" y2="36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
       {/* AI sparkle */}
-      <path d="M40 10l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+      <path d="M40 36l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
     </svg>
   );
 }

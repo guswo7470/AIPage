@@ -14,16 +14,16 @@ import {
   VideoGenSvg,
   TextGenSvg,
   CodeGenSvg,
-  ChatGenSvg,
+  FortuneGenSvg,
 } from "@/components/ui/service-icons";
 
 const serviceKeys = [
-  { key: "image", icon: ImageGenSvg, titleKey: "service.image.title", descKey: "service.image.desc" },
-  { key: "music", icon: MusicGenSvg, titleKey: "service.music.title", descKey: "service.music.desc" },
-  { key: "video", icon: VideoGenSvg, titleKey: "service.video.title", descKey: "service.video.desc" },
-  { key: "text", icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc" },
-  { key: "code", icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc" },
-  { key: "chat", icon: ChatGenSvg, titleKey: "service.chat.title", descKey: "service.chat.desc" },
+  { key: "image", icon: ImageGenSvg, titleKey: "service.image.title", descKey: "service.image.desc", href: "/dashboard/image" },
+  { key: "music", icon: MusicGenSvg, titleKey: "service.music.title", descKey: "service.music.desc", href: "/dashboard/music" },
+  { key: "video", icon: VideoGenSvg, titleKey: "service.video.title", descKey: "service.video.desc", href: null },
+  { key: "text", icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc", href: null },
+  { key: "code", icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc", href: null },
+  { key: "fortune", icon: FortuneGenSvg, titleKey: "service.fortune.title", descKey: "service.fortune.desc", href: "/dashboard/fortune" },
 ] as const;
 
 
@@ -192,47 +192,57 @@ export default function DashboardPage() {
 
         {/* Service Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-          {serviceKeys.map((service, index) => (
-            <motion.div
-              key={service.key}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: isFree ? 0.5 : 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className={`group relative flex flex-col items-center gap-4 rounded-2xl border backdrop-blur-sm p-6 md:p-8 transition-all ${
-                isFree
-                  ? "border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 cursor-not-allowed"
-                  : "border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 hover:border-gray-300/60 dark:hover:border-zinc-700 hover:bg-white/90 dark:hover:bg-zinc-900/80 hover:shadow-lg dark:hover:shadow-zinc-900/40 cursor-pointer"
-              }`}
-            >
-              <service.icon className={`w-10 h-10 md:w-12 md:h-12 transition-colors ${
-                isFree
-                  ? "text-gray-300 dark:text-zinc-600"
-                  : "text-gray-400 dark:text-zinc-500 group-hover:text-blue-600 dark:group-hover:text-blue-400"
-              }`} />
-              <div className="text-center">
-                <h3 className="text-sm md:text-base font-semibold tracking-tight">
-                  {t(service.titleKey)}
-                </h3>
-                <p className="text-xs md:text-sm text-gray-400 dark:text-zinc-500 mt-1">
-                  {t(service.descKey)}
-                </p>
-              </div>
+          {serviceKeys.map((service, index) => {
+            const isAvailable = !isFree && service.href;
+            return (
+              <motion.div
+                key={service.key}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: isFree ? 0.5 : 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                onClick={() => isAvailable && router.push(service.href!)}
+                className={`group relative flex flex-col items-center gap-4 rounded-2xl border backdrop-blur-sm p-6 md:p-8 transition-all ${
+                  isFree
+                    ? "border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 cursor-not-allowed"
+                    : isAvailable
+                      ? "border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 hover:border-gray-300/60 dark:hover:border-zinc-700 hover:bg-white/90 dark:hover:bg-zinc-900/80 hover:shadow-lg dark:hover:shadow-zinc-900/40 cursor-pointer"
+                      : "border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 hover:border-gray-300/60 dark:hover:border-zinc-700 hover:bg-white/90 dark:hover:bg-zinc-900/80 hover:shadow-lg dark:hover:shadow-zinc-900/40 cursor-pointer"
+                }`}
+              >
+                <service.icon className={`w-10 h-10 md:w-12 md:h-12 transition-colors ${
+                  isFree
+                    ? "text-gray-300 dark:text-zinc-600"
+                    : "text-gray-400 dark:text-zinc-500 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                }`} />
+                <div className="text-center">
+                  <h3 className="text-sm md:text-base font-semibold tracking-tight">
+                    {t(service.titleKey)}
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-400 dark:text-zinc-500 mt-1">
+                    {t(service.descKey)}
+                  </p>
+                </div>
 
-              {/* Badge */}
-              <span className="absolute top-3 right-3">
-                {isFree ? (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-zinc-500">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0110 0v4" />
-                  </svg>
-                ) : (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500">
-                    {t("dashboard.coming_soon")}
-                  </span>
-                )}
-              </span>
-            </motion.div>
-          ))}
+                {/* Badge */}
+                <span className="absolute top-3 right-3">
+                  {isFree ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-zinc-500">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                  ) : service.href ? (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                      {t("dashboard.available")}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500">
+                      {t("dashboard.coming_soon")}
+                    </span>
+                  )}
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 

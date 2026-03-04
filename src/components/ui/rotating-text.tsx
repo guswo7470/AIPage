@@ -15,7 +15,7 @@ interface RotatingTextProps {
 
 const animations: Record<
   AnimationMode,
-  { initial: object; animate: object; exit: object }
+  { initial: Record<string, unknown>; animate: Record<string, unknown>; exit: Record<string, unknown> }
 > = {
   slide: {
     initial: { y: "100%", opacity: 0 },
@@ -77,9 +77,9 @@ export function RotatingText({
         <motion.span
           key={words[index]}
           className="absolute inset-0 flex items-center justify-center"
-          initial={initial}
-          animate={animate}
-          exit={exit}
+          initial={initial as any}
+          animate={animate as any}
+          exit={exit as any}
           transition={{
             duration: 0.5,
             ease: [0.32, 0.72, 0, 1],

@@ -104,9 +104,8 @@ export function Header() {
   const { profile } = useProfile();
 
   const navItems = [
-    { label: t('nav.services'), href: '#services' },
-    { label: t('nav.about'), href: '#about' },
-    { label: t('nav.contact'), href: '#contact' },
+    { label: t('nav.services'), href: '/services' },
+    { label: t('nav.about'), href: '/about' },
   ];
 
   // Close popover on outside click
