@@ -20,9 +20,9 @@ import {
 const serviceKeys = [
   { key: "image", icon: ImageGenSvg, titleKey: "service.image.title", descKey: "service.image.desc", href: "/dashboard/image" },
   { key: "music", icon: MusicGenSvg, titleKey: "service.music.title", descKey: "service.music.desc", href: "/dashboard/music" },
-  { key: "video", icon: VideoGenSvg, titleKey: "service.video.title", descKey: "service.video.desc", href: null },
-  { key: "text", icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc", href: null },
-  { key: "code", icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc", href: null },
+  { key: "video", icon: VideoGenSvg, titleKey: "service.video.title", descKey: "service.video.desc", href: "/dashboard/video" },
+  { key: "text", icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc", href: "/dashboard/writing" },
+  { key: "code", icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc", href: "/dashboard/code" },
   { key: "fortune", icon: FortuneGenSvg, titleKey: "service.fortune.title", descKey: "service.fortune.desc", href: "/dashboard/fortune" },
 ] as const;
 

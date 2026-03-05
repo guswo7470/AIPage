@@ -131,7 +131,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 text-xl font-bold tracking-tight">
+          <Link href="/services" className="flex items-center gap-2 text-xl font-bold tracking-tight">
             <img src="/ai_logo.png" alt="AI Page" width={28} height={28} className="rounded-md" />
             AI Page
           </Link>
@@ -194,6 +194,19 @@ export function Header() {
                     </div>
 
                     <div className="py-1">
+                      <button
+                        onClick={() => { setPopoverOpen(false); router.push('/dashboard'); }}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                        </svg>
+                        {t('header.dashboard')}
+                      </button>
+
                       <button
                         onClick={() => { setPopoverOpen(false); setShowPricing(true); }}
                         className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"

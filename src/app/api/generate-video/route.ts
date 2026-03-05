@@ -1,0 +1,145 @@
+import { NextResponse } from "next/server";
+import Replicate from "replicate";
+import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN!,
+});
+
+const CREDIT_COST = 10;
+
+export async function POST(request: Request) {
+  // 1. Authenticate user
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // 2. Check user plan & credits
+  const { data: profile } = await supabaseAdmin
+    .from("users")
+    .select("plan, credits")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.plan === "free") {
+    return NextResponse.json(
+      { error: "Paid plan required" },
+      { status: 403 }
+    );
+  }
+
+  if (profile.credits < CREDIT_COST) {
+    return NextResponse.json(
+      { error: "Insufficient credits", required: CREDIT_COST, current: profile.credits },
+      { status: 403 }
+    );
+  }
+
+  // 3. Parse input
+  const { prompt, title } = await request.json();
+
+  if (!prompt || typeof prompt !== "string") {
+    return NextResponse.json(
+      { error: "Prompt is required" },
+      { status: 400 }
+    );
+  }
+
+  // 4. Deduct credits first
+  const { error: creditError } = await supabaseAdmin
+    .from("users")
+    .update({ credits: profile.credits - CREDIT_COST })
+    .eq("id", user.id);
+
+  if (creditError) {
+    return NextResponse.json(
+      { error: "Failed to deduct credits" },
+      { status: 500 }
+    );
+  }
+
+  try {
+    // 5. Call Replicate API (minimax/video-01)
+    const output = await replicate.run("minimax/video-01", {
+      input: { prompt },
+    });
+
+    // 6. Get the file URL from Replicate output
+    const outputFile = output as { url: () => string };
+    const replicateUrl = outputFile.url();
+
+    // 7. Download the file and upload to Supabase Storage
+    const videoResponse = await fetch(replicateUrl);
+    const videoBuffer = await videoResponse.arrayBuffer();
+    const fileName = `${user.id}/${Date.now()}.mp4`;
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("videos")
+      .upload(fileName, videoBuffer, {
+        contentType: "video/mp4",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      // Fallback: return Replicate URL directly
+      return NextResponse.json({
+        url: replicateUrl,
+        creditsUsed: CREDIT_COST,
+        creditsRemaining: profile.credits - CREDIT_COST,
+      });
+    }
+
+    // 8. Get public URL
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from("videos")
+      .getPublicUrl(fileName);
+
+    const fileUrl = publicUrlData.publicUrl;
+
+    // 9. Insert record into videos table
+    const videoTitle = title || prompt.slice(0, 60);
+    const { data: videoRecord, error: dbError } = await supabaseAdmin
+      .from("videos")
+      .insert({
+        user_id: user.id,
+        title: videoTitle,
+        prompt,
+        file_path: fileName,
+        file_url: fileUrl,
+        credits_used: CREDIT_COST,
+      })
+      .select("id, title, file_url, created_at")
+      .single();
+
+    if (dbError) {
+      console.error("DB insert error:", dbError);
+    }
+
+    return NextResponse.json({
+      url: fileUrl,
+      video: videoRecord || null,
+      creditsUsed: CREDIT_COST,
+      creditsRemaining: profile.credits - CREDIT_COST,
+    });
+  } catch (error: unknown) {
+    // Refund credits on failure
+    await supabaseAdmin
+      .from("users")
+      .update({ credits: profile.credits })
+      .eq("id", user.id);
+
+    console.error("Video generation error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json(
+      { error: "Video generation failed", detail: message },
+      { status: 500 }
+    );
+  }
+}
