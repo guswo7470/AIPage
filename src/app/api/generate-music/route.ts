@@ -7,7 +7,8 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
 });
 
-const CREDIT_COST = 5;
+const CREDIT_COST_PRO = 5;
+const CREDIT_COST_ULTRA = 20;
 
 export async function POST(request: Request) {
   // 1. Authenticate user
@@ -34,9 +35,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (profile.credits < CREDIT_COST) {
+  const creditCost = profile.plan === "ultra" ? CREDIT_COST_ULTRA : CREDIT_COST_PRO;
+
+  if (profile.credits < creditCost) {
     return NextResponse.json(
-      { error: "Insufficient credits", required: CREDIT_COST, current: profile.credits },
+      { error: "Insufficient credits", required: creditCost, current: profile.credits },
       { status: 403 }
     );
   }
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
   // 4. Deduct credits first
   const { error: creditError } = await supabaseAdmin
     .from("users")
-    .update({ credits: profile.credits - CREDIT_COST })
+    .update({ credits: profile.credits - creditCost })
     .eq("id", user.id);
 
   if (creditError) {
@@ -71,7 +74,10 @@ export async function POST(request: Request) {
       replicateInput.lyrics = lyrics;
     }
 
-    const output = await replicate.run("minimax/music-1.5", { input: replicateInput });
+    const isUltra = profile.plan === "ultra";
+    const model = isUltra ? "minimax/music-2.5" : "minimax/music-1.5";
+
+    const output = await replicate.run(model, { input: replicateInput });
 
     // 6. Get the file URL from Replicate output
     const replicateUrl =
@@ -95,8 +101,8 @@ export async function POST(request: Request) {
       console.error("Storage upload error:", uploadError);
       return NextResponse.json({
         url: replicateUrl,
-        creditsUsed: CREDIT_COST,
-        creditsRemaining: profile.credits - CREDIT_COST,
+        creditsUsed: creditCost,
+        creditsRemaining: profile.credits - creditCost,
       });
     }
 
@@ -118,7 +124,7 @@ export async function POST(request: Request) {
         lyrics: lyrics || null,
         file_path: fileName,
         file_url: fileUrl,
-        credits_used: CREDIT_COST,
+        credits_used: creditCost,
       })
       .select("id, title, file_url, created_at")
       .single();
@@ -130,8 +136,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: fileUrl,
       music: musicRecord || null,
-      creditsUsed: CREDIT_COST,
-      creditsRemaining: profile.credits - CREDIT_COST,
+      creditsUsed: creditCost,
+      creditsRemaining: profile.credits - creditCost,
     });
   } catch (error: unknown) {
     // Refund credits on failure

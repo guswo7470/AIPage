@@ -9,7 +9,10 @@ import { useProfile } from "@/lib/use-profile";
 import { VideoGenSvg } from "@/components/ui/service-icons";
 import { VideoList } from "@/components/ui/VideoList";
 
-const CREDIT_COST = 10;
+const CREDIT_COST_PRO_AUDIO = 30;
+const CREDIT_COST_PRO_NO_AUDIO = 20;
+const CREDIT_COST_ULTRA_AUDIO = 80;
+const CREDIT_COST_ULTRA_NO_AUDIO = 40;
 
 export default function VideoPage() {
   const { t } = useLanguage();
@@ -18,6 +21,7 @@ export default function VideoPage() {
   const router = useRouter();
 
   const [prompt, setPrompt] = useState("");
+  const [generateAudio, setGenerateAudio] = useState(true);
 
   const [generating, setGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -29,7 +33,11 @@ export default function VideoPage() {
 
   const plan = profile?.plan ?? "free";
   const isFree = plan === "free";
-  const hasEnoughCredits = (profile?.credits ?? 0) >= CREDIT_COST;
+  const isUltra = plan === "ultra";
+  const creditCost = isUltra
+    ? (generateAudio ? CREDIT_COST_ULTRA_AUDIO : CREDIT_COST_ULTRA_NO_AUDIO)
+    : (generateAudio ? CREDIT_COST_PRO_AUDIO : CREDIT_COST_PRO_NO_AUDIO);
+  const hasEnoughCredits = (profile?.credits ?? 0) >= creditCost;
 
   const handleVideoListLoaded = useCallback(() => {}, []);
 
@@ -60,6 +68,7 @@ export default function VideoPage() {
         body: JSON.stringify({
           prompt: prompt.trim(),
           title: prompt.trim().slice(0, 60),
+          generate_audio: generateAudio,
         }),
       });
 
@@ -212,7 +221,7 @@ export default function VideoPage() {
                 className="mb-6 flex items-center justify-between rounded-xl border border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm px-5 py-3"
               >
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
-                  {t("video.credit_cost")}: <span className="font-semibold text-blue-600 dark:text-blue-400">{CREDIT_COST} {t("pricing.credits")}</span>
+                  {t("video.credit_cost")}: <span className="font-semibold text-blue-600 dark:text-blue-400">{creditCost} {t("pricing.credits")}</span>
                 </span>
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
                   {t("video.credits_remaining")}: <span className="font-semibold text-amber-600 dark:text-amber-400">{profile.credits}</span>
@@ -300,11 +309,44 @@ export default function VideoPage() {
               />
             </motion.div>
 
+            {/* Audio Toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="mb-6"
+            >
+              <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
+                {t("video.audio_label")}
+              </label>
+              <button
+                onClick={() => setGenerateAudio(!generateAudio)}
+                disabled={isFree || generating}
+                className={`flex items-center gap-3 w-full rounded-xl border px-5 py-3.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  generateAudio
+                    ? "border-blue-300 dark:border-blue-700 bg-blue-50/70 dark:bg-blue-950/30"
+                    : "border-gray-200/60 dark:border-zinc-700 bg-white/70 dark:bg-zinc-900/60"
+                }`}
+              >
+                <div className={`relative w-11 h-6 rounded-full transition-colors ${generateAudio ? "bg-blue-500" : "bg-gray-300 dark:bg-zinc-600"}`}>
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${generateAudio ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+                </div>
+                <div className="flex-1 text-left">
+                  <span className={`text-sm font-medium ${generateAudio ? "text-blue-700 dark:text-blue-300" : "text-gray-600 dark:text-zinc-400"}`}>
+                    {generateAudio ? t("video.audio_on") : t("video.audio_off")}
+                  </span>
+                  <p className="text-xs text-gray-500 dark:text-zinc-500 mt-0.5">
+                    {generateAudio ? t("video.audio_desc_on") : t("video.audio_desc_off")}
+                  </p>
+                </div>
+              </button>
+            </motion.div>
+
             {/* Generate Button */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
+              transition={{ duration: 0.4, delay: 0.25 }}
               className="mb-8"
             >
               <button
@@ -320,7 +362,7 @@ export default function VideoPage() {
                 ) : (
                   <>
                     <VideoGenSvg className="w-5 h-5" />
-                    {t("video.generate")} ({CREDIT_COST} {t("pricing.credits")})
+                    {t("video.generate")} ({creditCost} {t("pricing.credits")})
                   </>
                 )}
               </button>

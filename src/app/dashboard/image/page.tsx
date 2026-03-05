@@ -9,7 +9,8 @@ import { useProfile } from "@/lib/use-profile";
 import { ImageGenSvg } from "@/components/ui/service-icons";
 import { ImageList } from "@/components/ui/ImageList";
 
-const CREDIT_COST = 5;
+const CREDIT_COST_PRO = 2;
+const CREDIT_COST_ULTRA = 6;
 
 const STYLE_PRESETS = [
   { key: "photorealistic", emoji: "📷" },
@@ -48,7 +49,8 @@ export default function ImageGenerationPage() {
 
   const plan = profile?.plan ?? "free";
   const isFree = plan === "free";
-  const hasEnoughCredits = (profile?.credits ?? 0) >= CREDIT_COST;
+  const creditCost = plan === "ultra" ? CREDIT_COST_ULTRA : CREDIT_COST_PRO;
+  const hasEnoughCredits = (profile?.credits ?? 0) >= creditCost;
 
   const handleImageListLoaded = useCallback(() => {}, []);
 
@@ -238,7 +240,7 @@ export default function ImageGenerationPage() {
                 className="mb-6 flex items-center justify-between rounded-xl border border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm px-5 py-3"
               >
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
-                  {t("image.credit_cost")}: <span className="font-semibold text-indigo-600 dark:text-indigo-400">{CREDIT_COST} {t("pricing.credits")}</span>
+                  {t("image.credit_cost")}: <span className="font-semibold text-indigo-600 dark:text-indigo-400">{creditCost} {t("pricing.credits")}</span>
                 </span>
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
                   {t("image.credits_remaining")}: <span className="font-semibold text-amber-600 dark:text-amber-400">{profile.credits}</span>
@@ -405,7 +407,7 @@ export default function ImageGenerationPage() {
                       <circle cx="8.5" cy="8.5" r="1.5" />
                       <polyline points="21 15 16 10 5 21" />
                     </svg>
-                    {t("image.generate")} ({CREDIT_COST} {t("pricing.credits")})
+                    {t("image.generate")} ({creditCost} {t("pricing.credits")})
                   </>
                 )}
               </button>

@@ -15,6 +15,8 @@ import {
   TextGenSvg,
   CodeGenSvg,
   FortuneGenSvg,
+  CalorieGenSvg,
+  MathGenSvg,
 } from "@/components/ui/service-icons";
 
 const serviceKeys = [
@@ -24,6 +26,8 @@ const serviceKeys = [
   { key: "text", icon: TextGenSvg, titleKey: "service.text.title", descKey: "service.text.desc", href: "/dashboard/writing" },
   { key: "code", icon: CodeGenSvg, titleKey: "service.code.title", descKey: "service.code.desc", href: "/dashboard/code" },
   { key: "fortune", icon: FortuneGenSvg, titleKey: "service.fortune.title", descKey: "service.fortune.desc", href: "/dashboard/fortune" },
+  { key: "calorie", icon: CalorieGenSvg, titleKey: "service.calorie.title", descKey: "service.calorie.desc", href: "/dashboard/calorie" },
+  { key: "math", icon: MathGenSvg, titleKey: "service.math.title", descKey: "service.math.desc", href: "/dashboard/math" },
 ] as const;
 
 

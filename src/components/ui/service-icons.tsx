@@ -90,6 +90,50 @@ export function CodeGenSvg({ className }: SvgProps) {
   );
 }
 
+export function CalorieGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Plate */}
+      <ellipse cx="24" cy="28" rx="18" ry="12" stroke="currentColor" strokeWidth="2" />
+      {/* Food on plate */}
+      <path d="M16 24c0-4 3.5-8 8-8s8 4 8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      {/* Steam lines */}
+      <path d="M18 14c0-2 1-3 0-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M24 12c0-2 1-3 0-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M30 14c0-2 1-3 0-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      {/* Calorie text hint */}
+      <text x="24" y="30" textAnchor="middle" fill="currentColor" fontSize="7" fontWeight="bold" opacity="0.7">kcal</text>
+      {/* AI sparkle */}
+      <path d="M40 10l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function MathGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Calculator body */}
+      <rect x="8" y="4" width="32" height="40" rx="3" stroke="currentColor" strokeWidth="2" />
+      {/* Screen */}
+      <rect x="12" y="8" width="24" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+      {/* Math symbols */}
+      <text x="24" y="16" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold" opacity="0.8">x+y</text>
+      {/* Keypad dots */}
+      <circle cx="16" cy="24" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="24" cy="24" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="32" cy="24" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="16" cy="32" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="24" cy="32" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="32" cy="32" r="2" fill="currentColor" opacity="0.4" />
+      {/* Equals sign */}
+      <line x1="20" y1="38" x2="28" y2="38" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+      <line x1="20" y1="41" x2="28" y2="41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+      {/* AI sparkle */}
+      <path d="M38 6l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function FortuneGenSvg({ className }: SvgProps) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">

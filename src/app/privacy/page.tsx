@@ -149,7 +149,7 @@ export default function PrivacyPage() {
                   <li>개인정보 처리 정지 요청</li>
                   <li>회원 탈퇴 (계정 삭제)</li>
                 </ul>
-                <p className="mt-2">위 권리 행사는 서비스 내 설정 또는 이메일(support@aipage.kr)을 통해 가능합니다.</p>
+                <p className="mt-2">위 권리 행사는 서비스 내 설정 또는 이메일(kimhyunjae8031@gmail.com)을 통해 가능합니다.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
@@ -175,7 +175,7 @@ export default function PrivacyPage() {
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">9. 개인정보 보호 책임자</h2>
                 <ul className="list-none space-y-1">
                   <li><strong>담당:</strong> AI Page 개인정보 보호팀</li>
-                  <li><strong>이메일:</strong> <span className="font-medium text-gray-900 dark:text-white">privacy@aipage.kr</span></li>
+                  <li><strong>이메일:</strong> <span className="font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</span></li>
                 </ul>
               </motion.div>
 
@@ -281,7 +281,7 @@ export default function PrivacyPage() {
                   <li>Request to stop processing your personal information</li>
                   <li>Delete your account</li>
                 </ul>
-                <p className="mt-2">You can exercise these rights through your account settings or by emailing support@aipage.kr.</p>
+                <p className="mt-2">You can exercise these rights through your account settings or by emailing kimhyunjae8031@gmail.com.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
@@ -307,7 +307,7 @@ export default function PrivacyPage() {
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">9. Data Protection Officer</h2>
                 <ul className="list-none space-y-1">
                   <li><strong>Team:</strong> AI Page Privacy Team</li>
-                  <li><strong>Email:</strong> <span className="font-medium text-gray-900 dark:text-white">privacy@aipage.kr</span></li>
+                  <li><strong>Email:</strong> <span className="font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</span></li>
                 </ul>
               </motion.div>
 
@@ -320,8 +320,8 @@ export default function PrivacyPage() {
 
           {/* Back link */}
           <motion.div variants={fadeUp} className="mt-16 pt-8 border-t border-gray-200/60 dark:border-zinc-800">
-            <Link href="/" className="text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
-              &larr; {isKo ? "홈으로 돌아가기" : "Back to Home"}
+            <Link href="/services" className="text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+              &larr; {isKo ? "서비스로 돌아가기" : "Back to Services"}
             </Link>
           </motion.div>
         </motion.div>

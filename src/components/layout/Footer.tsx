@@ -31,6 +31,8 @@ export function Footer() {
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.text.title")}</Link></li>
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.code.title")}</Link></li>
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.fortune.title")}</Link></li>
+              <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.calorie.title")}</Link></li>
+              <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.math.title")}</Link></li>
             </ul>
           </div>
 

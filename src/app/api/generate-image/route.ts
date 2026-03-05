@@ -7,7 +7,8 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
 });
 
-const CREDIT_COST = 5;
+const CREDIT_COST_PRO = 2;
+const CREDIT_COST_ULTRA = 6;
 
 export async function POST(request: Request) {
   // 1. Authenticate user
@@ -34,9 +35,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (profile.credits < CREDIT_COST) {
+  const creditCost = profile.plan === "ultra" ? CREDIT_COST_ULTRA : CREDIT_COST_PRO;
+
+  if (profile.credits < creditCost) {
     return NextResponse.json(
-      { error: "Insufficient credits", required: CREDIT_COST, current: profile.credits },
+      { error: "Insufficient credits", required: creditCost, current: profile.credits },
       { status: 403 }
     );
   }
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
   // 4. Deduct credits first
   const { error: creditError } = await supabaseAdmin
     .from("users")
-    .update({ credits: profile.credits - CREDIT_COST })
+    .update({ credits: profile.credits - creditCost })
     .eq("id", user.id);
 
   if (creditError) {
@@ -65,17 +68,27 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 5. Call Replicate API
+    // 5. Call Replicate API (model depends on plan)
+    const isUltra = profile.plan === "ultra";
+    const model = isUltra ? "google/nano-banana" : "minimax/image-01";
+
     const replicateInput: Record<string, string> = {
       prompt,
       aspect_ratio: aspect_ratio || "1:1",
     };
 
-    const output = await replicate.run("minimax/image-01", { input: replicateInput });
+    const output = await replicate.run(model, { input: replicateInput });
 
-    // 6. Get the file URL from Replicate output (returns array)
-    const outputArray = output as Array<{ url: () => string }>;
-    const replicateUrl = outputArray[0].url();
+    // 6. Get the file URL from Replicate output
+    // minimax/image-01 returns an array, google/nano-banana returns a single FileOutput
+    let replicateUrl: string;
+    if (isUltra) {
+      const fileOutput = output as { url: () => string };
+      replicateUrl = fileOutput.url();
+    } else {
+      const outputArray = output as Array<{ url: () => string }>;
+      replicateUrl = outputArray[0].url();
+    }
 
     // 7. Download the file and upload to Supabase Storage
     const imageResponse = await fetch(replicateUrl);
@@ -93,8 +106,8 @@ export async function POST(request: Request) {
       console.error("Storage upload error:", uploadError);
       return NextResponse.json({
         url: replicateUrl,
-        creditsUsed: CREDIT_COST,
-        creditsRemaining: profile.credits - CREDIT_COST,
+        creditsUsed: creditCost,
+        creditsRemaining: profile.credits - creditCost,
       });
     }
 
@@ -116,7 +129,7 @@ export async function POST(request: Request) {
         aspect_ratio: aspect_ratio || "1:1",
         file_path: fileName,
         file_url: fileUrl,
-        credits_used: CREDIT_COST,
+        credits_used: creditCost,
       })
       .select("id, title, file_url, created_at")
       .single();
@@ -128,8 +141,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: fileUrl,
       image: imageRecord || null,
-      creditsUsed: CREDIT_COST,
-      creditsRemaining: profile.credits - CREDIT_COST,
+      creditsUsed: creditCost,
+      creditsRemaining: profile.credits - creditCost,
     });
   } catch (error: unknown) {
     // Refund credits on failure

@@ -8,43 +8,26 @@ import remarkGfm from "remark-gfm";
 import { useLanguage } from "@/lib/language-context";
 import { useAuth } from "@/lib/auth-context";
 import { useProfile } from "@/lib/use-profile";
-import { TextGenSvg } from "@/components/ui/service-icons";
-import { WritingList } from "@/components/ui/WritingList";
+import { CalorieGenSvg } from "@/components/ui/service-icons";
+import { CalorieList } from "@/components/ui/CalorieList";
 
-const CREDIT_COST = 1;
+const CREDIT_COST = 3;
 
-const CATEGORIES = [
-  { value: "general", labelKey: "writing.category.general" },
-  { value: "blog", labelKey: "writing.category.blog" },
-  { value: "marketing", labelKey: "writing.category.marketing" },
-  { value: "email", labelKey: "writing.category.email" },
-  { value: "report", labelKey: "writing.category.report" },
-  { value: "story", labelKey: "writing.category.story" },
-] as const;
-
-const TONES = [
-  { value: "professional", labelKey: "writing.tone.professional" },
-  { value: "casual", labelKey: "writing.tone.casual" },
-  { value: "friendly", labelKey: "writing.tone.friendly" },
-  { value: "formal", labelKey: "writing.tone.formal" },
-  { value: "creative", labelKey: "writing.tone.creative" },
-  { value: "persuasive", labelKey: "writing.tone.persuasive" },
-] as const;
-
-export default function WritingPage() {
+export default function CaloriePage() {
   const { t } = useLanguage();
   const { user, loading } = useAuth();
   const { profile, refetch } = useProfile();
   const router = useRouter();
 
-  const [prompt, setPrompt] = useState("");
-  const [category, setCategory] = useState("general");
-  const [tone, setTone] = useState("professional");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  const [generating, setGenerating] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [resultImageUrl, setResultImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedWritingId, setSelectedWritingId] = useState<string | null>(null);
+  const [selectedCalorieId, setSelectedCalorieId] = useState<string | null>(null);
   const [listRefreshKey, setListRefreshKey] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentTitle, setCurrentTitle] = useState("");
@@ -54,13 +37,22 @@ export default function WritingPage() {
   const isFree = plan === "free";
   const hasEnoughCredits = (profile?.credits ?? 0) >= CREDIT_COST;
 
-  const handleWritingListLoaded = useCallback(() => {}, []);
+  const handleCalorieListLoaded = useCallback(() => {}, []);
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login");
     }
   }, [user, loading, router]);
+
+  // Cleanup object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   if (loading || !user) {
     return (
@@ -70,21 +62,44 @@ export default function WritingPage() {
     );
   }
 
-  const handleGenerate = async () => {
-    if (!prompt.trim() || generating) return;
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError(t("calorie.error.invalid_file"));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError(t("calorie.error.file_too_large"));
+      return;
+    }
+    setSelectedFile(file);
+    setError(null);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedFile || analyzing) return;
     setError(null);
     setResult(null);
-    setGenerating(true);
+    setAnalyzing(true);
 
     try {
-      const res = await fetch("/api/generate-writing", {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          resolve(dataUrl.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(selectedFile);
+      });
+
+      const res = await fetch("/api/generate-calorie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: prompt.trim(),
-          category,
-          tone,
-          title: prompt.trim().slice(0, 60),
+          imageBase64: base64,
+          mimeType: selectedFile.type,
+          title: selectedFile.name.replace(/\.[^.]+$/, "").slice(0, 60),
         }),
       });
 
@@ -92,42 +107,43 @@ export default function WritingPage() {
 
       if (!res.ok) {
         if (data.error === "Insufficient credits") {
-          setError(t("writing.error.no_credits"));
+          setError(t("calorie.error.no_credits"));
         } else if (data.error === "Paid plan required") {
-          setError(t("writing.error.plan_required"));
+          setError(t("calorie.error.plan_required"));
         } else {
-          setError(data.detail || data.error || t("writing.error.generic"));
+          setError(data.detail || data.error || t("calorie.error.generic"));
         }
         return;
       }
 
       setResult(data.result);
-      setCurrentTitle(prompt.trim().slice(0, 60));
-      if (data.writing) {
-        setSelectedWritingId(data.writing.id);
+      setResultImageUrl(data.imageUrl);
+      setCurrentTitle(data.calorie?.title || "");
+      if (data.calorie) {
+        setSelectedCalorieId(data.calorie.id);
       }
       setListRefreshKey((k) => k + 1);
       refetch();
     } catch {
-      setError(t("writing.error.generic"));
+      setError(t("calorie.error.generic"));
     } finally {
-      setGenerating(false);
+      setAnalyzing(false);
     }
   };
 
-  const handleSelectWriting = async (writing: { id: string; title: string; prompt: string; category: string; tone: string }) => {
-    setSelectedWritingId(writing.id);
-    setCurrentTitle(writing.title);
-    setPrompt(writing.prompt);
-    setCategory(writing.category);
-    setTone(writing.tone);
+  const handleSelectCalorie = async (item: { id: string; title: string; image_url: string }) => {
+    setSelectedCalorieId(item.id);
+    setCurrentTitle(item.title);
+    setResultImageUrl(item.image_url);
+    setSelectedFile(null);
+    setPreviewUrl(null);
 
     try {
-      const res = await fetch(`/api/writings?id=${writing.id}`);
+      const res = await fetch(`/api/calories?id=${item.id}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.writing?.result) {
-          setResult(data.writing.result);
+        if (data.calorie?.result) {
+          setResult(data.calorie.result);
         }
       }
     } catch {
@@ -148,7 +164,7 @@ export default function WritingPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${currentTitle || "generated-writing"}.md`;
+    a.download = `${currentTitle || "calorie-analysis"}.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -157,36 +173,36 @@ export default function WritingPage() {
     <section className="relative min-h-screen overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-100/80 via-slate-50 to-teal-100/60 dark:from-emerald-950/40 dark:via-zinc-950 dark:to-teal-950/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-lime-100/80 via-slate-50 to-green-100/60 dark:from-lime-950/40 dark:via-zinc-950 dark:to-green-950/30" />
         <svg className="absolute inset-0 w-full h-full opacity-[0.5] dark:opacity-[0.15]">
           <defs>
-            <pattern id="dot-grid-writing" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+            <pattern id="dot-grid-calorie" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.8" className="fill-slate-500 dark:fill-zinc-400" />
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#dot-grid-writing)" />
+          <rect width="100%" height="100%" fill="url(#dot-grid-calorie)" />
         </svg>
         <motion.div
-          className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-emerald-400/40 dark:bg-emerald-600/20 blur-3xl"
+          className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-lime-400/40 dark:bg-lime-600/20 blur-3xl"
           animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-1/3 -right-40 w-[420px] h-[420px] rounded-full bg-teal-400/35 dark:bg-teal-600/20 blur-3xl"
+          className="absolute top-1/3 -right-40 w-[420px] h-[420px] rounded-full bg-green-400/35 dark:bg-green-600/20 blur-3xl"
           animate={{ x: [0, -30, 0], y: [0, 40, 0] }}
           transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
       <div className="flex min-h-screen">
-        {/* Sidebar - Writing List */}
+        {/* Sidebar */}
         <div className={`${sidebarOpen ? "w-72 lg:w-80" : "w-0"} shrink-0 transition-all duration-300 overflow-hidden border-r border-gray-200/60 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-md`}>
           <div className="w-72 lg:w-80 h-screen sticky top-0">
-            <WritingList
-              onSelect={handleSelectWriting}
-              selectedId={selectedWritingId}
+            <CalorieList
+              onSelect={handleSelectCalorie}
+              selectedId={selectedCalorieId}
               refreshKey={listRefreshKey}
-              onListLoaded={handleWritingListLoaded}
+              onListLoaded={handleCalorieListLoaded}
             />
           </div>
         </div>
@@ -197,14 +213,7 @@ export default function WritingPage() {
           className="sticky top-4 z-10 -ml-3 mt-4 flex items-center justify-center w-6 h-12 rounded-r-lg bg-white/80 dark:bg-zinc-900/80 border border-l-0 border-gray-200/60 dark:border-zinc-800 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
         >
           <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
             className={`text-gray-400 dark:text-zinc-500 transition-transform ${sidebarOpen ? "" : "rotate-180"}`}
           >
             <polyline points="15 18 9 12 15 6" />
@@ -229,19 +238,19 @@ export default function WritingPage() {
                   <path d="M19 12H5" />
                   <path d="M12 19l-7-7 7-7" />
                 </svg>
-                {t("writing.back")}
+                {t("calorie.back")}
               </button>
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <TextGenSvg className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-lime-100 dark:bg-lime-900/30">
+                  <CalorieGenSvg className="w-6 h-6 text-lime-600 dark:text-lime-400" />
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                    {t("writing.title")}
+                    {t("calorie.title")}
                   </h1>
                   <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
-                    {t("writing.subtitle")}
+                    {t("calorie.subtitle")}
                   </p>
                 </div>
               </div>
@@ -256,10 +265,10 @@ export default function WritingPage() {
                 className="mb-6 flex items-center justify-between rounded-xl border border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm px-5 py-3"
               >
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
-                  {t("writing.credit_cost")}: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{CREDIT_COST} {t("pricing.credits")}</span>
+                  {t("calorie.credit_cost")}: <span className="font-semibold text-lime-600 dark:text-lime-400">{CREDIT_COST} {t("pricing.credits")}</span>
                 </span>
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
-                  {t("writing.credits_remaining")}: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{profile.credits}</span>
+                  {t("calorie.credits_remaining")}: <span className="font-semibold text-lime-600 dark:text-lime-400">{profile.credits}</span>
                 </span>
               </motion.div>
             )}
@@ -272,12 +281,12 @@ export default function WritingPage() {
                 transition={{ duration: 0.4, delay: 0.05 }}
                 className="mb-6 rounded-xl border border-amber-200/60 dark:border-amber-800/40 bg-amber-50/70 dark:bg-amber-950/20 backdrop-blur-sm px-5 py-4 text-center"
               >
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-200">{t("writing.error.plan_required")}</p>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-200">{t("calorie.error.plan_required")}</p>
               </motion.div>
             )}
 
             {/* Result Preview */}
-            {result && !generating && (
+            {result && !analyzing && (
               <motion.div
                 initial={{ opacity: 0, y: 16, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -286,12 +295,12 @@ export default function WritingPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                      <TextGenSvg className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-lime-100 dark:bg-lime-900/30">
+                      <CalorieGenSvg className="w-4 h-4 text-lime-600 dark:text-lime-400" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {t("writing.result_title")}
+                        {t("calorie.result_title")}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-zinc-400 truncate max-w-[200px]">
                         {currentTitle}
@@ -307,98 +316,130 @@ export default function WritingPage() {
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                       </svg>
-                      {copied ? t("writing.copied") : t("writing.copy")}
+                      {copied ? t("calorie.copied") : t("calorie.copy")}
                     </button>
                     <button
                       onClick={handleDownload}
-                      className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-lime-50 dark:bg-lime-900/20 text-lime-600 dark:text-lime-400 hover:bg-lime-100 dark:hover:bg-lime-900/40 transition-colors"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                         <polyline points="7 10 12 15 17 10" />
                         <line x1="12" y1="15" x2="12" y2="3" />
                       </svg>
-                      {t("writing.download")}
+                      {t("calorie.download")}
                     </button>
                   </div>
                 </div>
-                <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-zinc-300 prose-pre:bg-gray-900 dark:prose-pre:bg-zinc-950 prose-pre:text-gray-100">
+
+                {/* Food image in result */}
+                {resultImageUrl && (
+                  <div className="mb-4 rounded-xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={resultImageUrl} alt="Analyzed food" className="w-full max-h-48 object-cover" />
+                  </div>
+                )}
+
+                <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-zinc-300 prose-table:text-sm">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
                 </div>
               </motion.div>
             )}
 
-            {/* Input Form */}
+            {/* Image Upload Zone */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="space-y-4 mb-4"
+              className="mb-4"
             >
-              {/* Category Select */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
-                  {t("writing.category_label")}
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((cat) => (
+              <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
+                {t("calorie.upload_label")} <span className="text-red-500">*</span>
+              </label>
+
+              <div
+                onDragOver={(e) => { e.preventDefault(); if (!isFree && !analyzing) setIsDragOver(true); }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  if (isFree || analyzing) return;
+                  const file = e.dataTransfer.files[0];
+                  if (file) handleFileSelect(file);
+                }}
+                onClick={() => !isFree && !analyzing && document.getElementById("fileInput")?.click()}
+                className={`relative rounded-xl border-2 border-dashed transition-all ${
+                  isDragOver
+                    ? "border-lime-400 bg-lime-50/60 dark:border-lime-600 dark:bg-lime-950/20"
+                    : previewUrl
+                      ? "border-lime-300 dark:border-lime-700"
+                      : "border-gray-200/80 dark:border-zinc-700 hover:border-lime-300 dark:hover:border-lime-700"
+                } ${isFree || analyzing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                {previewUrl ? (
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="w-full max-h-72 object-contain rounded-xl"
+                    />
                     <button
-                      key={cat.value}
-                      onClick={() => setCategory(cat.value)}
-                      disabled={isFree || generating}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                        category === cat.value
-                          ? "bg-emerald-600 dark:bg-emerald-500 text-white border-emerald-600 dark:border-emerald-500"
-                          : "border-gray-200/60 dark:border-zinc-700 bg-white/70 dark:bg-zinc-800/60 text-gray-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedFile(null);
+                        if (previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+                        setPreviewUrl(null);
+                        setResult(null);
+                      }}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
                     >
-                      {t(cat.labelKey)}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </button>
-                  ))}
-                </div>
+                    {selectedFile && (
+                      <p className="text-xs text-center text-gray-500 dark:text-zinc-400 py-2">
+                        {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)} KB)
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-lime-400 dark:text-lime-600 mb-3">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">
+                      {t("calorie.upload_drag")}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
+                      {t("calorie.upload_hint")}
+                    </p>
+                    <span className="mt-4 text-xs font-medium px-4 py-2 rounded-lg bg-lime-50 dark:bg-lime-900/20 text-lime-700 dark:text-lime-400 border border-lime-200 dark:border-lime-800">
+                      {t("calorie.upload_button")}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {/* Tone Select */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
-                  {t("writing.tone_label")}
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {TONES.map((t_) => (
-                    <button
-                      key={t_.value}
-                      onClick={() => setTone(t_.value)}
-                      disabled={isFree || generating}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                        tone === t_.value
-                          ? "bg-emerald-600 dark:bg-emerald-500 text-white border-emerald-600 dark:border-emerald-500"
-                          : "border-gray-200/60 dark:border-zinc-700 bg-white/70 dark:bg-zinc-800/60 text-gray-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                      }`}
-                    >
-                      {t(t_.labelKey)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Prompt */}
-              <div>
-                <label htmlFor="writingPrompt" className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
-                  {t("writing.prompt_label")} <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="writingPrompt"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={t("writing.prompt_placeholder")}
-                  rows={5}
-                  disabled={isFree || generating}
-                  className="w-full rounded-xl border border-gray-200/60 dark:border-zinc-700 bg-white/80 dark:bg-zinc-900/70 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:focus:ring-emerald-400/50 focus:border-emerald-400 dark:focus:border-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed resize-none"
-                />
-              </div>
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                disabled={isFree || analyzing}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelect(file);
+                  e.target.value = "";
+                }}
+              />
             </motion.div>
 
-            {/* Generate Button */}
+            {/* Analyze Button */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -406,25 +447,25 @@ export default function WritingPage() {
               className="mb-8"
             >
               <button
-                onClick={handleGenerate}
-                disabled={isFree || !prompt.trim() || generating || !hasEnoughCredits}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white font-semibold py-3.5 px-6 hover:bg-emerald-700 dark:hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAnalyze}
+                disabled={isFree || !selectedFile || analyzing || !hasEnoughCredits}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-lime-600 dark:bg-lime-500 text-white font-semibold py-3.5 px-6 hover:bg-lime-700 dark:hover:bg-lime-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {generating ? (
+                {analyzing ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    {t("writing.generating")}
+                    {t("calorie.analyzing")}
                   </>
                 ) : (
                   <>
-                    <TextGenSvg className="w-5 h-5" />
-                    {t("writing.generate")} ({CREDIT_COST} {t("pricing.credits")})
+                    <CalorieGenSvg className="w-5 h-5" />
+                    {t("calorie.analyze")} ({CREDIT_COST} {t("pricing.credits")})
                   </>
                 )}
               </button>
               {!hasEnoughCredits && !isFree && (
                 <p className="text-xs text-red-500 dark:text-red-400 mt-2 text-center">
-                  {t("writing.error.no_credits")}
+                  {t("calorie.error.no_credits")}
                 </p>
               )}
             </motion.div>
@@ -446,8 +487,8 @@ export default function WritingPage() {
               </motion.div>
             )}
 
-            {/* Generating animation */}
-            {generating && (
+            {/* Analyzing animation */}
+            {analyzing && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -455,14 +496,14 @@ export default function WritingPage() {
               >
                 <div className="relative w-24 h-24 mb-6">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-20 h-20 rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600 dark:border-t-emerald-400 animate-spin" />
+                    <div className="w-20 h-20 rounded-full border-4 border-lime-200 dark:border-lime-800 border-t-lime-600 dark:border-t-lime-400 animate-spin" />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <TextGenSvg className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                    <CalorieGenSvg className="w-8 h-8 text-lime-600 dark:text-lime-400" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">{t("writing.generating_desc")}</p>
-                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{t("writing.generating_time")}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-zinc-300">{t("calorie.analyzing_desc")}</p>
+                <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">{t("calorie.analyzing_time")}</p>
               </motion.div>
             )}
           </div>

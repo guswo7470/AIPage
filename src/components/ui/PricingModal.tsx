@@ -218,7 +218,7 @@ export function PricingModal({ open, onClose }: PricingModalProps) {
                           {t("pricing.quality")}: <span className={isUltra ? "font-medium text-gray-900 dark:text-white" : ""}>{isUltra ? t("pricing.quality.ultra") : t("pricing.quality.pro")}</span>
                         </span>
                       </li>
-                      {/* Generations per request */}
+                      {/* Performance */}
                       <li className="flex items-center gap-2 text-sm">
                         <svg className={`w-4 h-4 shrink-0 ${isUltra ? "text-blue-500" : "text-gray-300 dark:text-zinc-600"}`} viewBox="0 0 20 20" fill="currentColor">
                           {isUltra ? (
@@ -228,7 +228,7 @@ export function PricingModal({ open, onClose }: PricingModalProps) {
                           )}
                         </svg>
                         <span className="text-gray-600 dark:text-zinc-400">
-                          {t("pricing.generations")}: <span className={isUltra ? "font-medium text-gray-900 dark:text-white" : ""}>{isUltra ? t("pricing.generations.ultra") : t("pricing.generations.pro")}</span>
+                          {t("pricing.performance")}: <span className={isUltra ? "font-medium text-gray-900 dark:text-white" : ""}>{isUltra ? t("pricing.performance.ultra") : t("pricing.performance.pro")}</span>
                         </span>
                       </li>
                     </ul>

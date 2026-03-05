@@ -10,7 +10,8 @@ import { MusicGenSvg } from "@/components/ui/service-icons";
 import { MusicList } from "@/components/ui/MusicList";
 import { MusicPlayer } from "@/components/ui/MusicPlayer";
 
-const CREDIT_COST = 5;
+const CREDIT_COST_PRO = 5;
+const CREDIT_COST_ULTRA = 20;
 
 const GENRE_PRESETS = [
   { key: "pop", emoji: "🎵" },
@@ -42,7 +43,8 @@ export default function MusicGenerationPage() {
 
   const plan = profile?.plan ?? "free";
   const isFree = plan === "free";
-  const hasEnoughCredits = (profile?.credits ?? 0) >= CREDIT_COST;
+  const creditCost = plan === "ultra" ? CREDIT_COST_ULTRA : CREDIT_COST_PRO;
+  const hasEnoughCredits = (profile?.credits ?? 0) >= creditCost;
 
   const handleMusicListLoaded = useCallback((list: { id: string; title: string; file_url: string; prompt: string; lyrics: string | null }[]) => {
     setMusicList(list);
@@ -238,7 +240,7 @@ export default function MusicGenerationPage() {
                 className="mb-6 flex items-center justify-between rounded-xl border border-gray-200/60 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm px-5 py-3"
               >
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
-                  {t("music.credit_cost")}: <span className="font-semibold text-violet-600 dark:text-violet-400">{CREDIT_COST} {t("pricing.credits")}</span>
+                  {t("music.credit_cost")}: <span className="font-semibold text-violet-600 dark:text-violet-400">{creditCost} {t("pricing.credits")}</span>
                 </span>
                 <span className="text-sm text-gray-600 dark:text-zinc-400">
                   {t("music.credits_remaining")}: <span className="font-semibold text-amber-600 dark:text-amber-400">{profile.credits}</span>
@@ -374,7 +376,7 @@ export default function MusicGenerationPage() {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
-                    {t("music.generate")} ({CREDIT_COST} {t("pricing.credits")})
+                    {t("music.generate")} ({creditCost} {t("pricing.credits")})
                   </>
                 )}
               </button>

@@ -7,7 +7,10 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
 });
 
-const CREDIT_COST = 10;
+const CREDIT_COST_PRO_AUDIO = 30;
+const CREDIT_COST_PRO_NO_AUDIO = 20;
+const CREDIT_COST_ULTRA_AUDIO = 80;
+const CREDIT_COST_ULTRA_NO_AUDIO = 40;
 
 export async function POST(request: Request) {
   // 1. Authenticate user
@@ -34,15 +37,8 @@ export async function POST(request: Request) {
     );
   }
 
-  if (profile.credits < CREDIT_COST) {
-    return NextResponse.json(
-      { error: "Insufficient credits", required: CREDIT_COST, current: profile.credits },
-      { status: 403 }
-    );
-  }
-
   // 3. Parse input
-  const { prompt, title } = await request.json();
+  const { prompt, title, generate_audio = true } = await request.json();
 
   if (!prompt || typeof prompt !== "string") {
     return NextResponse.json(
@@ -51,10 +47,23 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4. Deduct credits first
+  // 4. Calculate credit cost based on plan and audio option
+  const isUltraPlan = profile.plan === "ultra";
+  const creditCost = isUltraPlan
+    ? (generate_audio ? CREDIT_COST_ULTRA_AUDIO : CREDIT_COST_ULTRA_NO_AUDIO)
+    : (generate_audio ? CREDIT_COST_PRO_AUDIO : CREDIT_COST_PRO_NO_AUDIO);
+
+  if (profile.credits < creditCost) {
+    return NextResponse.json(
+      { error: "Insufficient credits", required: creditCost, current: profile.credits },
+      { status: 403 }
+    );
+  }
+
+  // 5. Deduct credits first
   const { error: creditError } = await supabaseAdmin
     .from("users")
-    .update({ credits: profile.credits - CREDIT_COST })
+    .update({ credits: profile.credits - creditCost })
     .eq("id", user.id);
 
   if (creditError) {
@@ -65,16 +74,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 5. Call Replicate API (minimax/video-01)
-    const output = await replicate.run("minimax/video-01", {
-      input: { prompt },
+    // 6. Call Replicate API (model depends on plan)
+    const model = isUltraPlan ? "google/veo-3.1" : "google/veo-3-fast";
+
+    const output = await replicate.run(model, {
+      input: { prompt, generate_audio: !!generate_audio },
     });
 
-    // 6. Get the file URL from Replicate output
+    // 7. Get the file URL from Replicate output
     const outputFile = output as { url: () => string };
     const replicateUrl = outputFile.url();
 
-    // 7. Download the file and upload to Supabase Storage
+    // 8. Download the file and upload to Supabase Storage
     const videoResponse = await fetch(replicateUrl);
     const videoBuffer = await videoResponse.arrayBuffer();
     const fileName = `${user.id}/${Date.now()}.mp4`;
@@ -91,19 +102,19 @@ export async function POST(request: Request) {
       // Fallback: return Replicate URL directly
       return NextResponse.json({
         url: replicateUrl,
-        creditsUsed: CREDIT_COST,
-        creditsRemaining: profile.credits - CREDIT_COST,
+        creditsUsed: creditCost,
+        creditsRemaining: profile.credits - creditCost,
       });
     }
 
-    // 8. Get public URL
+    // 9. Get public URL
     const { data: publicUrlData } = supabaseAdmin.storage
       .from("videos")
       .getPublicUrl(fileName);
 
     const fileUrl = publicUrlData.publicUrl;
 
-    // 9. Insert record into videos table
+    // 10. Insert record into videos table
     const videoTitle = title || prompt.slice(0, 60);
     const { data: videoRecord, error: dbError } = await supabaseAdmin
       .from("videos")
@@ -113,7 +124,7 @@ export async function POST(request: Request) {
         prompt,
         file_path: fileName,
         file_url: fileUrl,
-        credits_used: CREDIT_COST,
+        credits_used: creditCost,
       })
       .select("id, title, file_url, created_at")
       .single();
@@ -125,8 +136,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: fileUrl,
       video: videoRecord || null,
-      creditsUsed: CREDIT_COST,
-      creditsRemaining: profile.credits - CREDIT_COST,
+      creditsUsed: creditCost,
+      creditsRemaining: profile.credits - creditCost,
     });
   } catch (error: unknown) {
     // Refund credits on failure

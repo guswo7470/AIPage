@@ -13,6 +13,8 @@ import {
   TextGenSvg,
   CodeGenSvg,
   FortuneGenSvg,
+  CalorieGenSvg,
+  MathGenSvg,
 } from "@/components/ui/service-icons";
 
 const services = [
@@ -81,6 +83,28 @@ const services = [
     gradient: "from-sky-500/10 to-indigo-500/10 dark:from-sky-500/5 dark:to-indigo-500/5",
     accent: "text-sky-600 dark:text-sky-400",
     border: "hover:border-sky-300 dark:hover:border-sky-700",
+  },
+  {
+    icon: CalorieGenSvg,
+    titleKey: "service.calorie.title",
+    descKey: "service.calorie.desc",
+    detailKey: "services.calorie.detail",
+    featureKeys: ["services.calorie.feature1", "services.calorie.feature2", "services.calorie.feature3"],
+    usecaseKeys: ["services.calorie.usecase1", "services.calorie.usecase2", "services.calorie.usecase3"],
+    gradient: "from-lime-500/10 to-green-500/10 dark:from-lime-500/5 dark:to-green-500/5",
+    accent: "text-lime-600 dark:text-lime-400",
+    border: "hover:border-lime-300 dark:hover:border-lime-700",
+  },
+  {
+    icon: MathGenSvg,
+    titleKey: "service.math.title",
+    descKey: "service.math.desc",
+    detailKey: "services.math.detail",
+    featureKeys: ["services.math.feature1", "services.math.feature2", "services.math.feature3"],
+    usecaseKeys: ["services.math.usecase1", "services.math.usecase2", "services.math.usecase3"],
+    gradient: "from-red-500/10 to-rose-500/10 dark:from-red-500/5 dark:to-rose-500/5",
+    accent: "text-red-600 dark:text-red-400",
+    border: "hover:border-red-300 dark:hover:border-red-700",
   },
 ] as const;
 
@@ -287,7 +311,7 @@ export default function ServicesPage() {
                 </li>
                 <li className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-zinc-400">
                   <svg className="w-4 h-4 shrink-0 text-gray-300 dark:text-zinc-600" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                  {t("pricing.generations")}: {t("pricing.generations.pro")}
+                  {t("pricing.performance")}: {t("pricing.performance.pro")}
                 </li>
               </ul>
 
@@ -328,7 +352,7 @@ export default function ServicesPage() {
                 </li>
                 <li className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-zinc-400">
                   <svg className="w-4 h-4 shrink-0 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                  {t("pricing.generations")}: <span className="font-medium text-gray-900 dark:text-white">{t("pricing.generations.ultra")}</span>
+                  {t("pricing.performance")}: <span className="font-medium text-gray-900 dark:text-white">{t("pricing.performance.ultra")}</span>
                 </li>
               </ul>
 

@@ -151,7 +151,7 @@ export default function TermsPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제12조 (문의)</h2>
                 <p>본 약관에 대한 문의는 아래 이메일로 연락해 주시기 바랍니다.</p>
-                <p className="mt-2 font-medium text-gray-900 dark:text-white">support@aipage.kr</p>
+                <p className="mt-2 font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</p>
               </motion.div>
             </div>
           ) : (
@@ -244,15 +244,15 @@ export default function TermsPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">12. Contact</h2>
                 <p>For questions about these Terms, please contact us at:</p>
-                <p className="mt-2 font-medium text-gray-900 dark:text-white">support@aipage.kr</p>
+                <p className="mt-2 font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</p>
               </motion.div>
             </div>
           )}
 
           {/* Back link */}
           <motion.div variants={fadeUp} className="mt-16 pt-8 border-t border-gray-200/60 dark:border-zinc-800">
-            <Link href="/" className="text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
-              &larr; {isKo ? "홈으로 돌아가기" : "Back to Home"}
+            <Link href="/services" className="text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors">
+              &larr; {isKo ? "서비스로 돌아가기" : "Back to Services"}
             </Link>
           </motion.div>
         </motion.div>

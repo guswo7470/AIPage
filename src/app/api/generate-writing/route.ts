@@ -8,7 +8,7 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
 });
 
-const CREDIT_COST = 5;
+const CREDIT_COST = 1;
 
 export async function POST(request: Request) {
   // 1. Authenticate user
