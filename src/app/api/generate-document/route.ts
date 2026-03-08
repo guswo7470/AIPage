@@ -11,6 +11,8 @@ import {
 } from "@/lib/document-prompt";
 import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
+import { deductCredits, refundCredits } from "@/lib/credits";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -365,23 +367,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 2. Check user plan & credits
+  // 1.5 Rate limiting
+  const rateCheck = checkRateLimit(`generate:${user.id}`, 10, 60_000);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
+  }
+
+  // 2. Check user plan
   const { data: profile } = await supabaseAdmin
     .from("users")
-    .select("plan, credits")
+    .select("plan")
     .eq("id", user.id)
     .single();
 
   if (!profile || profile.plan === "free") {
     return NextResponse.json(
       { error: "Paid plan required" },
-      { status: 403 }
-    );
-  }
-
-  if (profile.credits < CREDIT_COST) {
-    return NextResponse.json(
-      { error: "Insufficient credits", required: CREDIT_COST, current: profile.credits },
       { status: 403 }
     );
   }
@@ -399,18 +403,10 @@ export async function POST(request: Request) {
   const validTypes = ["pdf", "excel", "ppt", "word"];
   const docType = validTypes.includes(documentType) ? documentType : "pdf";
 
-  // 4. Deduct credits first
-  const { error: creditError } = await supabaseAdmin
-    .from("users")
-    .update({ credits: profile.credits - CREDIT_COST })
-    .eq("id", user.id);
-
-  if (creditError) {
-    return NextResponse.json(
-      { error: "Failed to deduct credits" },
-      { status: 500 }
-    );
-  }
+  // 4. Atomic credit deduction
+  const deductResult = await deductCredits(user.id, CREDIT_COST);
+  if (deductResult instanceof NextResponse) return deductResult;
+  const remainingCredits = deductResult.remaining;
 
   try {
     // 5. Extract reference file text (if provided)
@@ -506,14 +502,11 @@ ${referenceSection}
       fileUrl,
       document: documentRecord || null,
       creditsUsed: CREDIT_COST,
-      creditsRemaining: profile.credits - CREDIT_COST,
+      creditsRemaining: remainingCredits,
     });
   } catch (error: unknown) {
     // Refund credits on failure
-    await supabaseAdmin
-      .from("users")
-      .update({ credits: profile.credits })
-      .eq("id", user.id);
+    await refundCredits(user.id, CREDIT_COST);
 
     console.error("Document generation error:", error);
     const message = error instanceof Error ? error.message : String(error);

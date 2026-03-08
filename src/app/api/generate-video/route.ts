@@ -3,6 +3,8 @@ import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { uploadToR2 } from "@/lib/r2";
+import { deductCredits, refundCredits } from "@/lib/credits";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -24,10 +26,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // 2. Check user plan & credits
+  // 1.5 Rate limiting
+  const rateCheck = checkRateLimit(`generate:${user.id}`, 10, 60_000);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 }
+    );
+  }
+
+  // 2. Check user plan
   const { data: profile } = await supabaseAdmin
     .from("users")
-    .select("plan, credits")
+    .select("plan")
     .eq("id", user.id)
     .single();
 
@@ -54,25 +65,10 @@ export async function POST(request: Request) {
     ? (generate_audio ? CREDIT_COST_ULTRA_AUDIO : CREDIT_COST_ULTRA_NO_AUDIO)
     : (generate_audio ? CREDIT_COST_PRO_AUDIO : CREDIT_COST_PRO_NO_AUDIO);
 
-  if (profile.credits < creditCost) {
-    return NextResponse.json(
-      { error: "Insufficient credits", required: creditCost, current: profile.credits },
-      { status: 403 }
-    );
-  }
-
-  // 5. Deduct credits first
-  const { error: creditError } = await supabaseAdmin
-    .from("users")
-    .update({ credits: profile.credits - creditCost })
-    .eq("id", user.id);
-
-  if (creditError) {
-    return NextResponse.json(
-      { error: "Failed to deduct credits" },
-      { status: 500 }
-    );
-  }
+  // 5. Atomic credit deduction
+  const deductResult = await deductCredits(user.id, creditCost);
+  if (deductResult instanceof NextResponse) return deductResult;
+  const remainingCredits = deductResult.remaining;
 
   try {
     // 6. Call Replicate API (model depends on plan)
@@ -116,14 +112,11 @@ export async function POST(request: Request) {
       url: fileUrl,
       video: videoRecord || null,
       creditsUsed: creditCost,
-      creditsRemaining: profile.credits - creditCost,
+      creditsRemaining: remainingCredits,
     });
   } catch (error: unknown) {
     // Refund credits on failure
-    await supabaseAdmin
-      .from("users")
-      .update({ credits: profile.credits })
-      .eq("id", user.id);
+    await refundCredits(user.id, creditCost);
 
     console.error("Video generation error:", error);
     const message = error instanceof Error ? error.message : String(error);

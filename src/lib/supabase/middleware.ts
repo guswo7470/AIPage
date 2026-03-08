@@ -28,12 +28,25 @@ export async function updateSession(request: NextRequest) {
   // Refreshing the auth token
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect /dashboard routes - redirect to /login if not authenticated
+  // Protect routes - redirect to /login if not authenticated
   const pathname = request.nextUrl.pathname;
-  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/subscription"))) {
+  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/subscription") || pathname.startsWith("/admin"))) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Protect /admin routes - redirect non-admins to /dashboard
+  if (user && pathname.startsWith("/admin")) {
+    const adminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (!user.email || !adminEmails.includes(user.email.toLowerCase())) {
+      const dashUrl = request.nextUrl.clone();
+      dashUrl.pathname = "/dashboard";
+      return NextResponse.redirect(dashUrl);
+    }
   }
 
   return supabaseResponse;

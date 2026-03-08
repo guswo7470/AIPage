@@ -104,7 +104,7 @@ export function Header() {
   const { profile } = useProfile();
 
   const navItems = [
-    { label: t('nav.services'), href: '/services' },
+    { label: t('nav.services'), href: '/' },
     { label: t('nav.about'), href: '/about' },
   ];
 
@@ -131,7 +131,7 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/services" className="flex items-center gap-2 text-xl font-bold tracking-tight">
+          <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-2 text-xl font-bold tracking-tight">
             <img src="/ai_logo.png" alt="AI Genry" width={28} height={28} className="rounded-md" />
             AI Genry
             <span className="hidden lg:inline-flex items-center gap-1 ml-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/10 to-violet-500/10 dark:from-blue-500/20 dark:to-violet-500/20 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40">
