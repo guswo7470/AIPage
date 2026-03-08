@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -90,33 +91,12 @@ export async function POST(request: Request) {
       replicateUrl = outputArray[0].url();
     }
 
-    // 7. Download the file and upload to Supabase Storage
+    // 7. Download the file and upload to R2
     const imageResponse = await fetch(replicateUrl);
     const imageBuffer = await imageResponse.arrayBuffer();
-    const fileName = `${user.id}/${Date.now()}.jpeg`;
+    const fileName = `images/${user.id}/${Date.now()}.jpeg`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("images")
-      .upload(fileName, imageBuffer, {
-        contentType: "image/jpeg",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("Storage upload error:", uploadError);
-      return NextResponse.json({
-        url: replicateUrl,
-        creditsUsed: creditCost,
-        creditsRemaining: profile.credits - creditCost,
-      });
-    }
-
-    // 8. Get public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from("images")
-      .getPublicUrl(fileName);
-
-    const fileUrl = publicUrlData.publicUrl;
+    const fileUrl = await uploadToR2(fileName, imageBuffer, "image/jpeg");
 
     // 9. Insert record into images table
     const imageTitle = title || prompt.slice(0, 60);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 import { CALORIE_SYSTEM_PROMPT } from "@/lib/calorie-prompt";
 
 const replicate = new Replicate({
@@ -83,27 +84,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 5. Upload image to Supabase Storage
+    // 5. Upload image to R2
     const ext = mimeType.split("/")[1];
-    const fileName = `${user.id}/${Date.now()}.${ext}`;
+    const fileName = `food-images/${user.id}/${Date.now()}.${ext}`;
     const imageBuffer = Buffer.from(imageBase64, "base64");
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("food-images")
-      .upload(fileName, imageBuffer, {
-        contentType: mimeType,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      throw new Error(`Storage upload failed: ${uploadError.message}`);
-    }
-
-    // 6. Get public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from("food-images")
-      .getPublicUrl(fileName);
-    const imageUrl = publicUrlData.publicUrl;
+    const imageUrl = await uploadToR2(fileName, imageBuffer, mimeType);
 
     // 7. Call Replicate (GPT-5 with vision)
     const userPrompt = "이 음식 사진을 분석하여 칼로리와 영양 정보를 알려주세요.";

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { deleteFromR2 } from "@/lib/r2";
 
 // GET: Fetch user's video list
 export async function GET() {
@@ -54,9 +55,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Delete from storage
+  // Delete from R2
   if (video.file_path) {
-    await supabaseAdmin.storage.from("videos").remove([video.file_path]);
+    await deleteFromR2(video.file_path);
   }
 
   // Delete from DB

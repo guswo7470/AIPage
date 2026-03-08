@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 import { MATH_SYSTEM_PROMPT } from "@/lib/math-prompt";
 
 const replicate = new Replicate({
@@ -93,27 +94,13 @@ export async function POST(request: Request) {
     let imagePath: string | null = null;
     const inputType = hasImage ? "image" : "text";
 
-    // 5. Upload image to Supabase Storage (if image mode)
+    // 5. Upload image to R2 (if image mode)
     if (hasImage) {
       const ext = mimeType.split("/")[1];
-      const fileName = `${user.id}/${Date.now()}.${ext}`;
+      const fileName = `math-images/${user.id}/${Date.now()}.${ext}`;
       const imageBuffer = Buffer.from(imageBase64, "base64");
 
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("math-images")
-        .upload(fileName, imageBuffer, {
-          contentType: mimeType,
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw new Error(`Storage upload failed: ${uploadError.message}`);
-      }
-
-      const { data: publicUrlData } = supabaseAdmin.storage
-        .from("math-images")
-        .getPublicUrl(fileName);
-      imageUrl = publicUrlData.publicUrl;
+      imageUrl = await uploadToR2(fileName, imageBuffer, mimeType);
       imagePath = fileName;
     }
 

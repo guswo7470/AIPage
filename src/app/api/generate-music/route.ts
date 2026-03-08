@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -85,33 +86,12 @@ export async function POST(request: Request) {
         ? (output as { url: () => string }).url()
         : String(output);
 
-    // 7. Download the file and upload to Supabase Storage
+    // 7. Download the file and upload to R2
     const audioResponse = await fetch(replicateUrl);
     const audioBuffer = await audioResponse.arrayBuffer();
-    const fileName = `${user.id}/${Date.now()}.mp3`;
+    const fileName = `musics/${user.id}/${Date.now()}.mp3`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("musics")
-      .upload(fileName, audioBuffer, {
-        contentType: "audio/mpeg",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("Storage upload error:", uploadError);
-      return NextResponse.json({
-        url: replicateUrl,
-        creditsUsed: creditCost,
-        creditsRemaining: profile.credits - creditCost,
-      });
-    }
-
-    // 8. Get public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from("musics")
-      .getPublicUrl(fileName);
-
-    const fileUrl = publicUrlData.publicUrl;
+    const fileUrl = await uploadToR2(fileName, audioBuffer, "audio/mpeg");
 
     // 9. Insert record into musics table
     const musicTitle = title || prompt.slice(0, 60);

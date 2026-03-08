@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
@@ -85,34 +86,12 @@ export async function POST(request: Request) {
     const outputFile = output as { url: () => string };
     const replicateUrl = outputFile.url();
 
-    // 8. Download the file and upload to Supabase Storage
+    // 8. Download the file and upload to R2
     const videoResponse = await fetch(replicateUrl);
     const videoBuffer = await videoResponse.arrayBuffer();
-    const fileName = `${user.id}/${Date.now()}.mp4`;
+    const fileName = `videos/${user.id}/${Date.now()}.mp4`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("videos")
-      .upload(fileName, videoBuffer, {
-        contentType: "video/mp4",
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.error("Storage upload error:", uploadError);
-      // Fallback: return Replicate URL directly
-      return NextResponse.json({
-        url: replicateUrl,
-        creditsUsed: creditCost,
-        creditsRemaining: profile.credits - creditCost,
-      });
-    }
-
-    // 9. Get public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from("videos")
-      .getPublicUrl(fileName);
-
-    const fileUrl = publicUrlData.publicUrl;
+    const fileUrl = await uploadToR2(fileName, videoBuffer, "video/mp4");
 
     // 10. Insert record into videos table
     const videoTitle = title || prompt.slice(0, 60);

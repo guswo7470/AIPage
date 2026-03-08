@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Replicate from "replicate";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { uploadToR2 } from "@/lib/r2";
 import {
   DOCUMENT_PDF_PROMPT,
   DOCUMENT_EXCEL_PROMPT,
@@ -471,30 +472,13 @@ ${referenceSection}
         fileBuffer = await generatePdfBuffer(result, title || prompt.slice(0, 60));
     }
 
-    // 8. Upload to Supabase Storage
+    // 8. Upload to R2
     const ext = FILE_EXTENSIONS[docType] || "pdf";
     const mimeType = MIME_TYPES[docType] || "application/pdf";
-    const fileName = `${user.id}/${Date.now()}.${ext}`;
+    const fileName = `documents/${user.id}/${Date.now()}.${ext}`;
 
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from("documents")
-      .upload(fileName, fileBuffer, {
-        contentType: mimeType,
-        upsert: false,
-      });
-
-    let fileUrl: string | null = null;
-    let filePath: string | null = null;
-
-    if (!uploadError) {
-      const { data: publicUrlData } = supabaseAdmin.storage
-        .from("documents")
-        .getPublicUrl(fileName);
-      fileUrl = publicUrlData.publicUrl;
-      filePath = fileName;
-    } else {
-      console.error("Storage upload error:", uploadError);
-    }
+    const fileUrl = await uploadToR2(fileName, fileBuffer, mimeType);
+    const filePath = fileName;
 
     // 9. Save to DB
     const docTitle = title || prompt.slice(0, 60);

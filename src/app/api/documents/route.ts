@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { deleteFromR2 } from "@/lib/r2";
 
 // GET: Fetch user's document list or single document by id
 export async function GET(request: Request) {
@@ -74,11 +75,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // Delete file from storage if exists
+  // Delete file from R2 if exists
   if (document.file_path) {
-    await supabaseAdmin.storage
-      .from("documents")
-      .remove([document.file_path]);
+    await deleteFromR2(document.file_path);
   }
 
   // Delete from DB
