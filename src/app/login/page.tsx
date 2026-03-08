@@ -70,7 +70,7 @@ export default function LoginPage() {
           <div className="flex flex-col items-center gap-4 mb-8">
             <img
               src="/ai_logo.png"
-              alt="AI Page"
+              alt="AI Genry"
               width={48}
               height={48}
               className="rounded-xl"

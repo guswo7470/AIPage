@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             <div className="space-y-10 text-gray-600 dark:text-zinc-400 text-[15px] leading-relaxed">
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">1. 개인정보의 수집 항목 및 방법</h2>
-                <p className="mb-3">AI Page는 서비스 제공을 위해 다음과 같은 개인정보를 수집합니다:</p>
+                <p className="mb-3">AI Genry는 서비스 제공을 위해 다음과 같은 개인정보를 수집합니다:</p>
                 <div className="rounded-xl border border-gray-200/60 dark:border-zinc-800 overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
 
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">4. 개인정보의 제3자 제공</h2>
-                <p>AI Page는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다:</p>
+                <p>AI Genry는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다:</p>
                 <ul className="list-disc pl-5 space-y-2 mt-2">
                   <li>이용자가 사전에 동의한 경우</li>
                   <li>법령에 의해 요구되는 경우</li>
@@ -149,13 +149,13 @@ export default function PrivacyPage() {
                   <li>개인정보 처리 정지 요청</li>
                   <li>회원 탈퇴 (계정 삭제)</li>
                 </ul>
-                <p className="mt-2">위 권리 행사는 서비스 내 설정 또는 이메일(kimhyunjae8031@gmail.com)을 통해 가능합니다.</p>
+                <p className="mt-2">위 권리 행사는 서비스 내 설정 또는 이메일(aigenry98@gmail.com)을 통해 가능합니다.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">7. 쿠키(Cookie) 사용</h2>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li>AI Page는 로그인 세션 유지 및 서비스 이용 편의를 위해 쿠키를 사용합니다.</li>
+                  <li>AI Genry는 로그인 세션 유지 및 서비스 이용 편의를 위해 쿠키를 사용합니다.</li>
                   <li>이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있으나, 이 경우 서비스 이용에 제한이 있을 수 있습니다.</li>
                 </ul>
               </motion.div>
@@ -174,8 +174,8 @@ export default function PrivacyPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">9. 개인정보 보호 책임자</h2>
                 <ul className="list-none space-y-1">
-                  <li><strong>담당:</strong> AI Page 개인정보 보호팀</li>
-                  <li><strong>이메일:</strong> <span className="font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</span></li>
+                  <li><strong>담당:</strong> AI Genry 개인정보 보호팀</li>
+                  <li><strong>이메일:</strong> <span className="font-medium text-gray-900 dark:text-white">aigenry98@gmail.com</span></li>
                 </ul>
               </motion.div>
 
@@ -188,7 +188,7 @@ export default function PrivacyPage() {
             <div className="space-y-10 text-gray-600 dark:text-zinc-400 text-[15px] leading-relaxed">
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">1. Information We Collect</h2>
-                <p className="mb-3">AI Page collects the following information to provide the Service:</p>
+                <p className="mb-3">AI Genry collects the following information to provide the Service:</p>
                 <div className="rounded-xl border border-gray-200/60 dark:border-zinc-800 overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
@@ -281,13 +281,13 @@ export default function PrivacyPage() {
                   <li>Request to stop processing your personal information</li>
                   <li>Delete your account</li>
                 </ul>
-                <p className="mt-2">You can exercise these rights through your account settings or by emailing kimhyunjae8031@gmail.com.</p>
+                <p className="mt-2">You can exercise these rights through your account settings or by emailing aigenry98@gmail.com.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">7. Cookies</h2>
                 <ul className="list-disc pl-5 space-y-2">
-                  <li>AI Page uses cookies to maintain login sessions and improve user experience.</li>
+                  <li>AI Genry uses cookies to maintain login sessions and improve user experience.</li>
                   <li>You may disable cookies in your browser settings, but this may limit certain features of the Service.</li>
                 </ul>
               </motion.div>
@@ -306,8 +306,8 @@ export default function PrivacyPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">9. Data Protection Officer</h2>
                 <ul className="list-none space-y-1">
-                  <li><strong>Team:</strong> AI Page Privacy Team</li>
-                  <li><strong>Email:</strong> <span className="font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</span></li>
+                  <li><strong>Team:</strong> AI Genry Privacy Team</li>
+                  <li><strong>Email:</strong> <span className="font-medium text-gray-900 dark:text-white">aigenry98@gmail.com</span></li>
                 </ul>
               </motion.div>
 

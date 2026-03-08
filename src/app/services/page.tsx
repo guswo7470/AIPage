@@ -15,6 +15,7 @@ import {
   FortuneGenSvg,
   CalorieGenSvg,
   MathGenSvg,
+  DocumentGenSvg,
 } from "@/components/ui/service-icons";
 
 const services = [
@@ -105,6 +106,17 @@ const services = [
     gradient: "from-red-500/10 to-rose-500/10 dark:from-red-500/5 dark:to-rose-500/5",
     accent: "text-red-600 dark:text-red-400",
     border: "hover:border-red-300 dark:hover:border-red-700",
+  },
+  {
+    icon: DocumentGenSvg,
+    titleKey: "service.document.title",
+    descKey: "service.document.desc",
+    detailKey: "services.document.detail",
+    featureKeys: ["services.document.feature1", "services.document.feature2", "services.document.feature3"],
+    usecaseKeys: ["services.document.usecase1", "services.document.usecase2", "services.document.usecase3"],
+    gradient: "from-cyan-500/10 to-sky-500/10 dark:from-cyan-500/5 dark:to-sky-500/5",
+    accent: "text-cyan-600 dark:text-cyan-400",
+    border: "hover:border-cyan-300 dark:hover:border-cyan-700",
   },
 ] as const;
 

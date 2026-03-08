@@ -56,7 +56,7 @@ export default function TermsPage() {
             <div className="space-y-10 text-gray-600 dark:text-zinc-400 text-[15px] leading-relaxed">
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제1조 (목적)</h2>
-                <p>본 약관은 AI Page(이하 &quot;회사&quot;)가 제공하는 AI 기반 콘텐츠 생성 서비스(이하 &quot;서비스&quot;)의 이용 조건 및 절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+                <p>본 약관은 AI Genry(이하 &quot;회사&quot;)가 제공하는 AI 기반 콘텐츠 생성 서비스(이하 &quot;서비스&quot;)의 이용 조건 및 절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
@@ -151,19 +151,19 @@ export default function TermsPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">제12조 (문의)</h2>
                 <p>본 약관에 대한 문의는 아래 이메일로 연락해 주시기 바랍니다.</p>
-                <p className="mt-2 font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</p>
+                <p className="mt-2 font-medium text-gray-900 dark:text-white">aigenry98@gmail.com</p>
               </motion.div>
             </div>
           ) : (
             <div className="space-y-10 text-gray-600 dark:text-zinc-400 text-[15px] leading-relaxed">
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
-                <p>By accessing or using AI Page (the &quot;Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service.</p>
+                <p>By accessing or using AI Genry (the &quot;Service&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the Service.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">2. Description of Service</h2>
-                <p>AI Page is an AI-powered creative platform that provides content generation services including, but not limited to, AI image generation, AI music generation, AI video generation, AI writing, AI code generation, and AI chat. The Service is provided on a subscription basis with monthly credit allocations.</p>
+                <p>AI Genry is an AI-powered creative platform that provides content generation services including, but not limited to, AI image generation, AI music generation, AI video generation, AI writing, AI code generation, and AI chat. The Service is provided on a subscription basis with monthly credit allocations.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
@@ -233,7 +233,7 @@ export default function TermsPage() {
 
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">10. Limitation of Liability</h2>
-                <p>To the fullest extent permitted by law, AI Page shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of the Service.</p>
+                <p>To the fullest extent permitted by law, AI Genry shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of the Service.</p>
               </motion.div>
 
               <motion.div variants={fadeUp}>
@@ -244,7 +244,7 @@ export default function TermsPage() {
               <motion.div variants={fadeUp}>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">12. Contact</h2>
                 <p>For questions about these Terms, please contact us at:</p>
-                <p className="mt-2 font-medium text-gray-900 dark:text-white">kimhyunjae8031@gmail.com</p>
+                <p className="mt-2 font-medium text-gray-900 dark:text-white">aigenry98@gmail.com</p>
               </motion.div>
             </div>
           )}

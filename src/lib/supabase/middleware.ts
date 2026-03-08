@@ -26,7 +26,15 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refreshing the auth token
-  await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Protect /dashboard routes - redirect to /login if not authenticated
+  const pathname = request.nextUrl.pathname;
+  if (!user && (pathname.startsWith("/dashboard") || pathname.startsWith("/subscription"))) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    return NextResponse.redirect(loginUrl);
+  }
 
   return supabaseResponse;
 }

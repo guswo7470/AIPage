@@ -134,6 +134,23 @@ export function MathGenSvg({ className }: SvgProps) {
   );
 }
 
+export function DocumentGenSvg({ className }: SvgProps) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Folder */}
+      <path d="M4 14V38a3 3 0 003 3h34a3 3 0 003-3V18a3 3 0 00-3-3H24l-4-4H7a3 3 0 00-3 3z" stroke="currentColor" strokeWidth="2" />
+      {/* Document inside */}
+      <rect x="16" y="20" width="16" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" opacity="0.8" />
+      {/* Text lines on document */}
+      <line x1="20" y1="25" x2="28" y2="25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+      <line x1="20" y1="29" x2="26" y2="29" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <line x1="20" y1="33" x2="28" y2="33" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+      {/* AI sparkle */}
+      <path d="M38 8l1.5 3 3 1.5-3 1.5L38 17l-1.5-3-3-1.5 3-1.5L38 8z" fill="currentColor" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function FortuneGenSvg({ className }: SvgProps) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">

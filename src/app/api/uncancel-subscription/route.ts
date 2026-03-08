@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
-const POLAR_API = "https://sandbox-api.polar.sh/v1";
+const POLAR_API = process.env.POLAR_API_URL || "https://api.polar.sh/v1";
 const POLAR_TOKEN = process.env.POLAR_ACCESS_TOKEN!;
 
 async function getCanceledSubscription(email: string) {
@@ -17,12 +18,16 @@ async function getCanceledSubscription(email: string) {
   );
 }
 
-export async function POST(request: Request) {
-  const { email } = await request.json();
+export async function POST() {
+  // Authenticate user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!email) {
-    return NextResponse.json({ error: "Missing email" }, { status: 400 });
+  if (!user || !user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const email = user.email;
 
   try {
     const subscription = await getCanceledSubscription(email);

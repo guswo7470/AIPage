@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-const POLAR_API = "https://sandbox-api.polar.sh/v1";
+const POLAR_API = process.env.POLAR_API_URL || "https://api.polar.sh/v1";
 const POLAR_TOKEN = process.env.POLAR_ACCESS_TOKEN!;
 
 const PLAN_LABELS: Record<string, string> = {
@@ -17,11 +18,15 @@ const CREDIT_AMOUNT_BY_CENTS: Record<number, number> = {
 };
 
 export async function POST(request: Request) {
-  const { email } = await request.json();
+  // Authenticate user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!email) {
-    return NextResponse.json({ error: "Missing email" }, { status: 400 });
+  if (!user || !user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const email = user.email;
 
   try {
     // 1. Fetch subscription info from Polar (needed for live status/dates)

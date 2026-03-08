@@ -66,12 +66,10 @@ export default function SubscriptionPage() {
 
   // Fetch subscription data from Polar
   const fetchSubscriptionData = (showLoading = true) => {
-    if (!user?.email) return;
+    if (!user) return;
     if (showLoading) setDataLoading(true);
     fetch("/api/subscription", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: user.email }),
     })
       .then((r) => r.json())
       .then((data) => {
@@ -84,22 +82,20 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     fetchSubscriptionData();
-  }, [user?.email]);
+  }, [user]);
 
   // Re-fetch on window focus (user returns from Polar checkout tab)
   useEffect(() => {
     const onFocus = () => fetchSubscriptionData(false);
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, [user?.email]);
+  }, [user]);
 
   const handleCancel = async () => {
     setCancelLoading(true);
     try {
       const res = await fetch("/api/cancel-subscription", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user?.email }),
       });
       const data = await res.json();
       if (data.success) {
@@ -122,8 +118,6 @@ export default function SubscriptionPage() {
     try {
       const res = await fetch("/api/uncancel-subscription", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user?.email }),
       });
       const data = await res.json();
       if (data.success) {
@@ -144,8 +138,6 @@ export default function SubscriptionPage() {
     try {
       const res = await fetch("/api/portal", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user?.email }),
       });
       const data = await res.json();
       if (data.url) {

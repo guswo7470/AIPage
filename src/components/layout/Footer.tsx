@@ -13,8 +13,8 @@ export function Footer() {
           {/* Logo + Copyright */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 text-lg font-bold text-white">
-              <img src="/ai_logo.png" alt="AI Page" width={24} height={24} className="rounded-md" />
-              AI Page
+              <img src="/ai_logo.png" alt="AI Genry" width={24} height={24} className="rounded-md" />
+              AI Genry
             </Link>
             <p className="text-xs text-zinc-500 mt-3 leading-relaxed">
               AI-Powered Creative Platform
@@ -33,6 +33,7 @@ export function Footer() {
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.fortune.title")}</Link></li>
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.calorie.title")}</Link></li>
               <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.math.title")}</Link></li>
+              <li><Link href="/services" className="text-sm text-zinc-400 hover:text-white transition-colors">{t("service.document.title")}</Link></li>
             </ul>
           </div>
 
@@ -67,7 +68,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-zinc-800">
           <p className="text-xs text-zinc-500">
-            &copy; {new Date().getFullYear()} AI Page. {t("footer.rights")}
+            &copy; {new Date().getFullYear()} AI Genry. {t("footer.rights")}
           </p>
         </div>
       </div>

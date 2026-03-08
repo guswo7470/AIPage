@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-const POLAR_API = "https://sandbox-api.polar.sh/v1";
+const POLAR_API = process.env.POLAR_API_URL || "https://api.polar.sh/v1";
 const POLAR_TOKEN = process.env.POLAR_ACCESS_TOKEN!;
 
 const PRODUCT_IDS: Record<string, string> = {
@@ -36,7 +37,16 @@ async function patchSubscription(subscriptionId: string, body: object) {
 }
 
 export async function POST(request: Request) {
-  const { plan, email } = await request.json();
+  // Authenticate user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user || !user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const email = user.email;
+  const { plan } = await request.json();
 
   const newProductId = PRODUCT_IDS[plan];
   if (!newProductId) {

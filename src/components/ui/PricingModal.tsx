@@ -46,7 +46,7 @@ export function PricingModal({ open, onClose }: PricingModalProps) {
         const res = await fetch("/api/upgrade", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plan: planKey, email: user?.email }),
+          body: JSON.stringify({ plan: planKey }),
         });
         const data = await res.json();
         if (data.success) {

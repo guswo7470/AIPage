@@ -1,17 +1,22 @@
 import { NextResponse } from "next/server";
 import { Polar } from "@polar-sh/sdk";
+import { createClient } from "@/lib/supabase/server";
 
 const polar = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
-  server: "sandbox",
+  server: (process.env.POLAR_ENVIRONMENT as "sandbox" | "production") || "production",
 });
 
-export async function POST(request: Request) {
-  const { email } = await request.json();
+export async function POST() {
+  // Authenticate user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!email) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
+  if (!user || !user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const email = user.email;
 
   try {
     // Find customer by email

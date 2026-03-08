@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Page",
+  title: "AI Genry - 서비스별 최적 AI 모델",
   description: "AI-Powered Creative Platform",
   icons: {
     icon: "/favicon.ico",

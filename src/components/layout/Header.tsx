@@ -132,8 +132,14 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/services" className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <img src="/ai_logo.png" alt="AI Page" width={28} height={28} className="rounded-md" />
-            AI Page
+            <img src="/ai_logo.png" alt="AI Genry" width={28} height={28} className="rounded-md" />
+            AI Genry
+            <span className="hidden lg:inline-flex items-center gap-1 ml-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/10 to-violet-500/10 dark:from-blue-500/20 dark:to-violet-500/20 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              {t('header.model_badge')}
+            </span>
           </Link>
 
           {/* Desktop */}
